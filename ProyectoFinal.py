@@ -17,7 +17,7 @@ st.title("Análisis de Fraude con Tarjetas de Crédito")
 # Cargar datos
 @st.cache_data
 def load_data():
-    return pd.read_csv("datasets/creditcard.csv")
+    return pd.read_csv("creditcard.csv")
 
 df = load_data()
 X = df.drop('Class', axis=1)
