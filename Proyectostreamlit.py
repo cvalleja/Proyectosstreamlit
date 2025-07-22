@@ -9,6 +9,10 @@ from sklearn.metrics import (classification_report, confusion_matrix,
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import time
+import webbrowser
+import pyautogui
+import pyperclip
+import re
 
 import warnings
 # Ignoramos algunos warnings que se producen por invocar el modelo sin el nombre de las características
@@ -48,19 +52,99 @@ t2.title("Detección de transacciones bancarias fraudulentas")
 t2.markdown(" **Grupo:** 4 **| Actividad:** Detección de fraudes ")
 
 # Datos
+with st.sidebar:
+    st.title("Ingreso de lista de correos")
 
-# Using object notation
-add_selectbox = st.sidebar.selectbox(
-    "Como desea que le compartamos el informe?",
-    ("Correo electronico", "Telefono Oficina", "Numero personal")
-)
+    # Cuadro de texto para múltiples líneas (ideal para listas) INGRESO DE CORREOS ELECTRONICOS
+    correos = st.text_area(
+        "Ingresa los correos electrónicos (uno por línea):",
+        height=150,  # Altura del cuadro en píxeles
+        help="Separa cada correo con un salto de línea"
+    )
+
+    if st.button("Procesar correos"):
+        if correos:
+            # Dividir el texto por líneas y eliminar espacios en blanco
+            lista_correos = [correo.strip() for correo in correos.split('\n') if correo.strip()]
+            
+            st.success(f"Se ingresaron {len(lista_correos)} correos válidos:")
+            st.write(lista_correos)
+        else:
+            st.warning("No se ingresaron correos electrónicos")
+            
+        # Función de validación simple de correo
+            def es_correo_valido(correo):
+                return re.match(r"[^@]+@[^@]+\.[^@]+", correo)
+
+            # Y modificar el procesamiento:
+            lista_correos_validos = [correo for correo in lista_correos if es_correo_valido(correo)]
+
+    if st.button('Enviar_correo', key='Correo_btn'):
+        start_time = time.time()
+                
+        destinatario = correos
+        asunto = "Análisis de transacciones bancarias" 
+
+        mensaje = f"""
+        Envío de informe transacciones bancarias,
+
+        El informe de las transacciones bancarias ya se encuentra generado, puedes acceder los siguientes links:
+
+
+
+                https://transacciones.streamlit.app/
+
+                https://transaccionesbancarias.streamlit.app/
+
+                https://fraudesbancarios.streamlit.app/
+
+
+
+        Cualquier información adicional con gustos será atendida.
+
+
+        Cordialmente equipo proyecto N° 4
+
+                """
+
+        webbrowser.open("https://mail.google.com/mail/u/0/#inbox")
+
+        time.sleep(10)
+
+        pyautogui.PAUSE = 4
+
+        pyautogui.click(245, 252)
+
+        pyperclip.copy(destinatario)
+        pyautogui.hotkey("ctrl", "v")
+        pyautogui.hotkey("tab")
+
+        pyperclip.copy(asunto)
+        pyautogui.hotkey("ctrl", "v")
+        pyautogui.hotkey("tab")
+
+        pyperclip.copy(mensaje)
+        pyautogui.hotkey("ctrl", "v")
+
+        pyautogui.click(1113, 1090) #Posición para botón de envío de correo electronico
+
+        pyautogui.hotkey("ctrl", "f4") # Cierra la pagina WEB
+
+        time.sleep(4)
+
+        pyautogui.position()
+                
+    else:
+        print('Error en el envío del email')
+                
+                
 
 # Using "with" notation
-with st.sidebar:
-    add_radio = st.radio(
-        "Desea validar la información",
-        ("Con novedad de fraude", "Sin novedad de fraude") 
-    )
+#with st.sidebar:
+    #add_radio = st.radio(
+        #"Desea validar la información",
+        #("Con novedad de fraude", "Sin novedad de fraude") 
+    #)
 
 
 
@@ -512,4 +596,4 @@ with steps[4]:
             *Resultado:* {prediction}  
             *Probabilidad:* {proba*100:.2f}%  
             *Tiempo:* {(time.time()-start_time):.3f} segundos
-            """)
+            """)   
