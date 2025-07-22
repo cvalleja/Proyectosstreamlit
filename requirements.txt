@@ -8,6 +8,5 @@ imbalanced-learn
 joblib
 time
 webbrowser
-pyautogui==0.9.54
 pyperclip
 re
