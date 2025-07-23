@@ -9,14 +9,13 @@ from sklearn.metrics import (classification_report, confusion_matrix,
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import time
-import webbrowser
-import pyautogui
-import pyperclip
-import re
+
 
 import warnings
 # Ignoramos algunos warnings que se producen por invocar el modelo sin el nombre de las características
 warnings.filterwarnings('ignore', category=UserWarning, message='.*X does not have valid feature names.*')
+
+import yagmail
 
 
 # Título de  la página
@@ -25,14 +24,11 @@ st.set_page_config(layout="centered",
     page_icon="🧩"
 )
 
-
-
-
 # Cargar datos
 @st.cache_data
 def load_data():
     return pd.read_csv('creditcard.csv')
-print(load_data())
+
 df = load_data()
 X = df.drop('Class', axis=1)
 y = df['Class']
@@ -53,6 +49,14 @@ t1, t2 = st.columns([0.3,0.7])
 #t1.image('index.jpg', width = 120)
 t2.title("Detección de transacciones bancarias fraudulentas")
 t2.markdown(" **Grupo:** 4 **| Actividad:** Detección de fraudes ")
+
+# Using "with" notation
+#with st.sidebar:
+    #add_radio = st.radio(
+        #"Desea validar la información",
+        #("Con novedad de fraude", "Sin novedad de fraude") 
+    #)
+
 
 
 # Secciones
