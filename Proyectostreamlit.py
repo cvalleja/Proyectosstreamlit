@@ -32,7 +32,7 @@ st.set_page_config(layout="centered",
 @st.cache_data
 def load_data():
     return pd.read_csv('creditcard.csv')
-
+print(load_data())
 df = load_data()
 X = df.drop('Class', axis=1)
 y = df['Class']
