@@ -25,6 +25,9 @@ st.set_page_config(layout="centered",
     page_icon="🧩"
 )
 
+
+
+
 # Cargar datos
 @st.cache_data
 def load_data():
