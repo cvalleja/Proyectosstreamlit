@@ -7,7 +7,3 @@ scikit-learn==1.6.1
 imbalanced-learn
 joblib
 time
-webbrowser
-pyperclip
-re
-pyautogui
