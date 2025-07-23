@@ -10,3 +10,4 @@ time
 webbrowser
 pyperclip
 re
+pyautogui
