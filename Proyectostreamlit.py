@@ -15,8 +15,6 @@ import warnings
 # Ignoramos algunos warnings que se producen por invocar el modelo sin el nombre de las características
 warnings.filterwarnings('ignore', category=UserWarning, message='.*X does not have valid feature names.*')
 
-import yagmail
-
 
 # Título de  la página
 st.set_page_config(layout="centered",
