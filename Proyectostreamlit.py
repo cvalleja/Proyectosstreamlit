@@ -42,7 +42,7 @@ model = load_model()
 
 # Columnas
 
-t1, t2 = st.columns([0.3,0.7]) 
+t1, t2 = st.columns([0.1,0.9]) 
 
 #t1.image('index.jpg', width = 120)
 t2.title("Detección de transacciones bancarias fraudulentas")
@@ -467,42 +467,78 @@ with steps[4]:
         
         model = get_model()
         
-        # Inputs 
-        cols = st.columns(2)
-        with cols[0]:
-            features = {
-                'V10': st.number_input('V10', value=0.0, format="%.5f"),
-                'V14': st.number_input('V14', value=0.0, format="%.5f"),
-                'Amount': st.number_input('Monto', value=0.0)
-            }
-        with cols[1]:
-            features.update({
-                'V4': st.number_input('V4', value=0.0, format="%.5f"),
-                'V12': st.number_input('V12', value=0.0, format="%.5f")
-            })
+         # 1. Selector para cargar ejemplos o ingresar manualmente
+        input_mode = st.radio("Fuente de datos:",
+                            ["Ingreso Manual", "Ejemplo del Dataset"])
         
-        # Pre-allocated array con valores por defecto (optimizado)
+        cols = st.columns(2)
+        features = {}
+        
+        with cols[0]:
+            if input_mode == "Ejemplo del Dataset":
+                sample = X_test.sample(1).iloc[0]
+                features['V10'] = st.number_input('V10', value=float(sample['V10']), format="%.5f")
+                features['V14'] = st.number_input('V14', value=float(sample['V14']), format="%.5f")
+                features['Amount'] = st.number_input('Monto', value=float(sample['Amount']))
+            else:
+                features['V10'] = st.number_input('V10', value=0.0, format="%.5f")
+                features['V14'] = st.number_input('V14', value=0.0, format="%.5f")
+                features['Amount'] = st.number_input('Monto', value=0.0)
+        
+        with cols[1]:
+            if input_mode == "Ejemplo del Dataset":
+                features['V4'] = st.number_input('V4', value=float(sample['V4']), format="%.5f")
+                features['V12'] = st.number_input('V12', value=float(sample['V12']), format="%.5f")
+            else:
+                features['V4'] = st.number_input('V4', value=0.0, format="%.5f")
+                features['V12'] = st.number_input('V12', value=0.0, format="%.5f")
+
+    # Resto del código de predicción igual...
+        
+        # Pre-allocated array con valores por defecto 
         default_values = np.zeros(len(X.columns))
         feature_indices = {col: idx for idx, col in enumerate(X.columns)}
         
         if st.button('Predecir', key='predict_btn'):
             start_time = time.time()
             
-            # Construir array de entrada de forma eficiente
+            # Construir array de entrada 
             input_array = default_values.copy()
             for feature, value in features.items():
                 if feature in feature_indices:
                     input_array[feature_indices[feature]] = value
             
-            # Predicción
+            # Predicción vectorizada 
             with st.spinner('Calculando...'):
                 proba = model.predict_proba([input_array])[0][1]
-                threshold = 0.5  # o usar optimal_threshold si está disponible
+                threshold = 0.3  # o usar optimal_threshold si está disponible
                 prediction = "Fraudulenta" if proba >= threshold else "Legítima"
             
-            # Mostrar resultados 
-            st.success(f"""
-            *Resultado:* {prediction}  
-            *Probabilidad:* {proba*100:.2f}%  
-            *Tiempo:* {(time.time()-start_time):.3f} segundos
-            """)   
+            # Resultado visual
+            risk_color = "red" if proba >= threshold else "green"
+            risk_level = "ALTO" if proba >= threshold else "bajo"
+            
+            st.markdown(f"""
+            <div style="border-radius:10px; padding:20px; background-color:#f0f2f6; margin-top:20px">
+                <h3 style="color:{risk_color}; text-align:center">
+                    Riesgo de Fraude: <b>{proba*100:.1f}%</b> ({risk_level})
+                </h3>
+                <p style="text-align:left">
+                    Threshold: {threshold:.2f} | 
+                    V10: {features['V10']:.2f} | 
+                    V14: {features['V14']:.2f} | 
+                    V4: {features['V4']:.2f}   | 
+                    V12: {features['V12']:.2f} | 
+                    Monto: ${features['Amount']:.2f}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        # Instrucciones rápidas
+        st.caption("""
+        💡 **Guía rápida:**  
+        - Valores de V10/V14 fuera del rango [-2, 2] son sospechosos  
+        - Montos mayores a $1000 requieren revisión  
+        - Ajusta el threshold para mayor/menor sensibilidad
+        """)
+            
